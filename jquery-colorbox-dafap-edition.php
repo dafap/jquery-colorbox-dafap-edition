@@ -1,23 +1,28 @@
 <?php
-/**
- * @package Techotronic
- * @subpackage jQuery Colorbox
- *
- * Plugin Name: jQuery Colorbox
- * Plugin URI: http://www.techotronic.de/plugins/jquery-colorbox/
- * Description: Used to overlay images on the current page. Images in one post are grouped automatically.
- * Version: 4.6.2
- * Author: Arne Franken
- * Author URI: http://www.techotronic.de/
- * License: GPL
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+/*
+ * Plugin Name: jQuery Colorbox Dafap Edition
+ * Plugin URI: https://github.com/dafap/jquery-colorbox-dafap-edition
+ * Description: Refonte moderne du plugin Colorbox pour WordPress.
+ * Version: 5.0
+ * Author: Arne Franken modifié par Alain Pomirol (Dafap - 2025)
+ * Author URI: https://github.com/dafap
+ * License: GPLv2 or later
  */
 ?>
 <?php
+/**
+ * jQuery Colorbox Dafap Edition
+ *
+ * @package   jquery-colorbox-dafap-edition
+ * @author    Alain Pomirol (Dafap), basé sur le travail original d'Arne Franken
+ * @copyright 2025 Alain Pomirol
+ * @license   GPL-2.0-or-later
+ * @link      https://github.com/dafap/jquery-colorbox-dafap-edition
+ * @version   5.0
+ * @since     5.0
+ * @file      jquery-colorbox-dafap-edition.php
+ * @purpose   Fichier principal du plugin, déclaration et initialisation
+ */
 //define constants
 define('JQUERYCOLORBOX_VERSION', '4.6.2');
 define('COLORBOXLIBRARY_VERSION', '1.4.33');
@@ -67,6 +72,7 @@ class JQueryColorbox {
 	public $dummyThemeNumberArray = [];
 	public $colorboxUnits = [];
 	public $colorboxTransitions = [];
+	private $plugin_name;
 
   /**
    * Constructor
@@ -77,61 +83,34 @@ class JQueryColorbox {
    * @access static
    * @author Arne Franken
    */
-  //public static function JQueryColorbox() {
   function __construct() {
     if (!function_exists('plugins_url')) {
       return;
     }
 
-    // load_plugin_textdomain(JQUERYCOLORBOX_TEXTDOMAIN, false, '/jquery-colorbox/localization/'); AP-retrait le 19/09/2025
+    // Chargement du domaine de traduction à priorité haute
 	add_action('init', [ $this, 'jquery_colorbox_load_textdomain' ], 5); // AP-ajout le 19/09/2025
+	
+	// Initialisation des chaînes traduites à priorité normale
+    add_action('init', [ $this, 'localize_labels' ], 10);
 
-    // Create the settings array by merging the user's settings and the defaults
+    // Instanciation du backend à priorité tardive
+    add_action('init', [ $this, 'init_backend' ], 15);
+
+    // Chargement des réglages
     $usersettings = (array)get_option(JQUERYCOLORBOX_SETTINGSNAME);
     $defaultArray = $this->jQueryColorboxDefaultSettings();
-
-    //check whether stored settings are compatible with current plugin version.
-    //if not: overwrite stored settings
     $validSettings = $this->validateSettingsInDatabase($usersettings);
+
+    $this->colorboxSettings = $validSettings
+            ? wp_parse_args($usersettings, $defaultArray)
+            : $defaultArray;
+			
     if(!$validSettings) {
-      $this->colorboxSettings = $defaultArray;
       update_option(JQUERYCOLORBOX_SETTINGSNAME, $defaultArray);
-    } else {
-      $this->colorboxSettings = wp_parse_args($usersettings, $defaultArray);
     }
 
-    // Create list of themes and their human readable names
-    /* AP- pb de traduction trop tôt
-	$this->colorboxThemes = array(
-      'theme1' => __('Theme #1', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme2' => __('Theme #2', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme3' => __('Theme #3', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme4' => __('Theme #4', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme5' => __('Theme #5', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme6' => __('Theme #6', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme7' => __('Theme #7', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme8' => __('Theme #8', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme9' => __('Theme #9', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme10' => __('Theme #10', JQUERYCOLORBOX_TEXTDOMAIN),
-      'theme11' => __('Theme #11', JQUERYCOLORBOX_TEXTDOMAIN)
-    );
-	$dummyThemeNumberArray = array(
-      __('Theme #12', JQUERYCOLORBOX_TEXTDOMAIN),
-      __('Theme #13', JQUERYCOLORBOX_TEXTDOMAIN),
-      __('Theme #14', JQUERYCOLORBOX_TEXTDOMAIN),
-      __('Theme #15', JQUERYCOLORBOX_TEXTDOMAIN)
-    );
-	$this->colorboxUnits = array(
-      '%' => __('percent', JQUERYCOLORBOX_TEXTDOMAIN),
-      'px' => __('pixels', JQUERYCOLORBOX_TEXTDOMAIN)
-    );
-	$this->colorboxTransitions = array(
-      'elastic' => __('elastic', JQUERYCOLORBOX_TEXTDOMAIN),
-      'fade' => __('fade', JQUERYCOLORBOX_TEXTDOMAIN),
-      'none' => __('none', JQUERYCOLORBOX_TEXTDOMAIN)
-    );
-	*/
-	
+	// Initialisation brute des chaînes (non traduites)
 	$this->colorboxThemes = array(
       'theme1' => 'Theme #1', 
       'theme2' => 'Theme #2',
@@ -146,42 +125,36 @@ class JQueryColorbox {
       'theme11' => 'Theme #11'
     );
 
-    //        $this->colorboxThemes = array_merge($this->getThemeDirs(),$this->colorboxThemes);
-
-    $dummyThemeNumberArray = array(
+    $this->dummyThemeNumberArray = array(
       'Theme #12',
       'Theme #13',
       'Theme #14',
       'Theme #15'
     );
 
-    // create list of units
     $this->colorboxUnits = array(
       '%' => 'percent',
       'px' => 'pixels'
     );
 
-    // create list of units
     $this->colorboxTransitions = array(
       'elastic' => 'elastic',
       'fade' => 'fade',
       'none' => 'none'
     );
-    /* AP appel différé de la traduction */
-	add_action('init', [ $this, 'localize_labels' ], 10);
-	
-    if (is_admin()) {
+    	
+    /*if (is_admin()) {
       require_once 'includes/jquery-colorbox-backend.php';
-      new JQueryColorboxBackend($this->colorboxSettings, $this->colorboxThemes, $this->colorboxUnits, $this->colorboxTransitions, $this->jQueryColorboxDefaultSettings());
+      new JQueryColorboxBackend($this); //->colorboxSettings, $this->colorboxThemes, $this->colorboxUnits, $this->colorboxTransitions, $this->jQueryColorboxDefaultSettings());
     }
     else {
       require_once 'includes/jquery-colorbox-frontend.php';
       new JQueryColorboxFrontend($this->colorboxSettings);
-    }
+    }*/
 
-    //register method for uninstall
+    // Enregistrement de la désinstallation
     if (function_exists('register_uninstall_hook')) {
-      register_uninstall_hook(__FILE__, array('JQueryColorbox', 'uninstallJqueryColorbox'));
+	  register_uninstall_hook(__FILE__, [ 'JQueryColorbox', 'uninstallJqueryColorbox' ]);
     }
   }
   // JQueryColorbox()
@@ -189,7 +162,7 @@ class JQueryColorbox {
   /**
    * AP - Ajout le 19/09/2025
    */
-   function jquery_colorbox_load_textdomain() {
+   public function jquery_colorbox_load_textdomain() {
 	   load_plugin_textdomain(JQUERYCOLORBOX_TEXTDOMAIN, false, '/jquery-colorbox/localization/');
 	   //load_plugin_textdomain(JQUERYCOLORBOX_TEXTDOMAIN, false, dirname(plugin_basename(__FILE__)) . '/localization');
 	   
@@ -200,24 +173,38 @@ class JQueryColorbox {
 	}
 	
 	public function localize_labels() {
-		if (!is_textdomain_loaded(JQUERYCOLORBOX_TEXTDOMAIN)) {
-    error_log('⚠️ Le domaine de traduction jquery-colorbox n’est pas encore chargé.');
-}
+	   $this->plugin_name = __(JQUERYCOLORBOX_NAME_RAW, JQUERYCOLORBOX_TEXTDOMAIN);
+
        foreach ($this->colorboxThemes as $key => $label) {
           $this->colorboxThemes[$key] = __($label, JQUERYCOLORBOX_TEXTDOMAIN);
        }
 
-       $this->colorboxUnits = array(
+       $this->colorboxUnits = [
          '%' => __('percent', JQUERYCOLORBOX_TEXTDOMAIN),
          'px' => __('pixels', JQUERYCOLORBOX_TEXTDOMAIN)
-       );
+       ];
 
-       $this->colorboxTransitions = array(
+       $this->colorboxTransitions = [
          'elastic' => __('elastic', JQUERYCOLORBOX_TEXTDOMAIN),
          'fade' => __('fade', JQUERYCOLORBOX_TEXTDOMAIN),
          'none' => __('none', JQUERYCOLORBOX_TEXTDOMAIN)
-       );
+       ];
     }
+	
+    public function init_backend() {
+        if (is_admin()) {
+            require_once 'includes/jquery-colorbox-backend.php';
+            new JQueryColorboxBackend($this);
+        } else {
+            require_once 'includes/jquery-colorbox-frontend.php';
+			new JQueryColorboxFrontend($this->colorboxSettings, $this->getPluginName());
+        }
+    }
+	
+	public function getPluginName() {
+        return isset($this->plugin_name) ? $this->plugin_name : JQUERYCOLORBOX_NAME_RAW;
+    }
+
     /* FIN DE L'AJOUT */
 
   /**
@@ -404,7 +391,7 @@ function initJQueryColorbox() {
 // initJQueryColorbox()
 
 // add jQueryColorbox to WordPress initialization
-add_action('init', 'initJQueryColorbox', 7);
+add_action('init', 'initJQueryColorbox', 3); // priorité avant les hooks internes
 
 //static call to constructor is only possible if constructor is 'public static', therefore not PHP4 compatible:
 //add_action('init', array('JQueryColorbox','JQueryColorbox'), 7);

@@ -1,12 +1,18 @@
 <?php
 /**
- * @package Techotronic
- * @subpackage jQuery Colorbox
+ * jQuery Colorbox Dafap Edition
  *
- * @since 4.1
- * @author Arne Franken
+ * @package   jquery-colorbox-dafap-edition
+ * @author    Alain (Dafap), basé sur le travail original d'Arne Franken
+ * @copyright 2025 Alain (Dafap)
+ * @license   GPL-2.0-or-later
+ * @link      https://github.com/dafap/jquery-colorbox-dafap-edition
  *
- * Handles all actions in the WordPress backend for the jQuery Colorbox plugin.
+ * @version   5.0
+ * @since     5.0
+ *
+ * @file      jquery-colorbox-backend.php
+ * @purpose   Handles all actions in the WordPress backend for the jQuery Colorbox plugin.
  */
 
 class JQueryColorboxBackend {
