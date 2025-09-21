@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: jQuery-Colorbox\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-09-23 21:29+0100\n"
-"PO-Revision-Date: 2012-09-23 21:29+0100\n"
+"PO-Revision-Date: 2025-09-21 16:54+0200\n"
 "Last-Translator: Arne Franken <blog@techotronic.de>\n"
 "Language-Team: Pierre Sudarovich\n"
 "Language: fr_FR\n"
@@ -13,7 +13,7 @@ msgstr ""
 "X-Poedit-KeywordsList: _e;__\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.3\n"
+"X-Generator: Poedit 3.7\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../jquery-colorbox.php:37
@@ -167,11 +167,11 @@ msgstr "{current} sur {total} images"
 
 #: ../includes/jquery-colorbox-frontend.php:181
 msgid "This content failed to load."
-msgstr ""
+msgstr "Ce contenu n'a pas pu être chargé."
 
 #: ../includes/jquery-colorbox-frontend.php:182
 msgid "This image failed to load."
-msgstr ""
+msgstr "Cette image n'a pas pu être chargée."
 
 #: ../includes/settings-page.php:18
 #, php-format
@@ -295,7 +295,7 @@ msgid ""
 msgstr ""
 "Fixer la hauteur maximum d'une image dans la Colorbox en fonction de la "
 "fenêtre du navigateur sur une valeur en pourcent ou en pixels. Si la hauteur "
-"maximum n'est pas fixée, l'image est aussi haute que la Colorbox."
+"maximum n'est pas fixée, l'image est aussi haute que la Colorbox"
 
 #: ../includes/settings-page/sp-colorbox-settings.php:145
 msgid "Maximum width of the Colorbox"
@@ -472,7 +472,7 @@ msgstr "Donnez en utilisant Paypal"
 
 #: ../includes/settings-page/sp-donate-box.php:24
 msgid "Techotronic Development Support"
-msgstr ""
+msgstr "Soutien au développement de  Dafap"
 
 #: ../includes/settings-page/sp-donate-box.php:28
 msgid "Please enter the URL you'd like me to link to in the donors lists"
@@ -506,12 +506,12 @@ msgstr "Envoyer"
 
 #: ../includes/settings-page/sp-donations.php:14
 msgid "Top donations"
-msgstr ""
+msgstr "Dons les plus importants"
 
 #: ../includes/settings-page/sp-donations.php:20
 #: ../includes/settings-page/sp-donations.php:33
 msgid "Thank you for your donation."
-msgstr ""
+msgstr "Merci pour votre don."
 
 #: ../includes/settings-page/sp-donations.php:27
 msgid "Latest donations"
@@ -589,15 +589,16 @@ msgstr ""
 
 #: ../includes/settings-page/sp-plugin-settings.php:70
 msgid "Add Zoom overlay to pictures"
-msgstr ""
+msgstr "Ajouter une superposition de zoom aux images"
 
 #: ../includes/settings-page/sp-plugin-settings.php:76
 msgid "Add Zoom overlay to pictures that open in a Colorbox."
 msgstr ""
+"Ajoutez une superposition de zoom aux images qui s'ouvrent dans une Colorbox."
 
 #: ../includes/settings-page/sp-plugin-settings.php:82
 msgid "Use jQuery library from Google"
-msgstr ""
+msgstr "Utiliser la bibliothèque jQuery de Google"
 
 #: ../includes/settings-page/sp-plugin-settings.php:88
 #, php-format
@@ -605,6 +606,8 @@ msgid ""
 "Use jQuery library version %1$s from Google instead of the one that comes "
 "with WordPress."
 msgstr ""
+"Utilisez la version %1$s de la bibliothèque jQuery de Google au lieu de "
+"celle fournie avec WordPress."
 
 #: ../includes/settings-page/sp-plugin-settings.php:94
 msgid "Add JavaScript to footer"
@@ -653,8 +656,8 @@ msgstr "Traduction"
 
 #: ../includes/settings-page/sp-translation.php:17
 msgid ""
-"The english translation was done by <a href=\"http://www.techotronic.de"
-"\">Arne Franken</a>."
+"The english translation was done by <a href=\"http://"
+"www.techotronic.de\">Arne Franken</a>."
 msgstr ""
 "La traduction française a été faite par <a href=\"http://www.monblogamoua.fr/"
 "\">Pierre Sudarovich</a>."

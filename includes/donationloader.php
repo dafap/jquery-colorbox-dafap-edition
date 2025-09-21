@@ -1,149 +1,111 @@
 <?php
 /**
- * @package Techotronic
- * @subpackage Donation Loader
+ * jQuery Colorbox Dafap Edition
  *
- * @version 1.0
- * @author Arne Franken
- *
- * Object that handles Ajax to Xml RPC calls
+ * @package   jquery-colorbox-dafap-edition
+ * @author    Alain Pomirol (Dafap), basé sur le travail original d'Arne Franken
+ * @copyright 2025 Alain Pomirol
+ * @license   GPL-2.0-or-later
+ * @link      https://github.com/dafap/jquery-colorbox-dafap-edition
+ * @version   5.0
+ * @since     5.0
+ * @file      class-jquery-colorbox-donation-loader.php
+ * @purpose   Gestion des appels Ajax vers XML-RPC pour les dons, avec mise en cache et localisation JS
  */
+
+declare(strict_types=1);
+
 if (!defined('JQUERYCOLORBOX_DONATIONLOADER_XMLRPC_URL')) {
   define('JQUERYCOLORBOX_DONATIONLOADER_XMLRPC_URL', 'http://www.techotronic.de/wordpress/xmlrpc.php');
 }
+
 if (!defined('JQUERYCOLORBOX_DONATIONLOADER_CACHETIME')) {
-  //cachetime in seconds, 60 minutes
-  define('JQUERYCOLORBOX_DONATIONLOADER_CACHETIME', 6000);
+  define('JQUERYCOLORBOX_DONATIONLOADER_CACHETIME', 6000); // 100 minutes
 }
-//has to have pluginname-prefix because Class names can't be used twice...
+
 class JQueryColorboxDonationLoader {
-  var $donationLoaderUserAgent = JQUERYCOLORBOX_USERAGENT;
-  var $donationLoaderPluginName = "jq_colorbox";
-  var $donationLoaderPluginUrl = JQUERYCOLORBOX_PLUGIN_URL;
 
   /**
-   * Constructor
-   *
-   * @since 1.0
-   * @access public
-   * @access static
-   * @author Arne Franken
-   *
-   * @return void
+   * Agent utilisateur pour les requêtes XML-RPC
+   * @var string
+   */
+  private string $donationLoaderUserAgent;
+
+  /**
+   * Nom du plugin utilisé dans les requêtes
+   * @var string
+   */
+  private string $donationLoaderPluginName = 'jq_colorbox';
+
+  /**
+   * URL du plugin pour charger les scripts
+   * @var string
+   */
+  private string $donationLoaderPluginUrl;
+
+  /**
+   * Constructeur : enregistre les hooks Ajax
    */
   public function __construct() {
-    //not logged in users can trigger the action
-    //add_action( 'wp_ajax_nopriv_action', 'methodName' );
-    //only logged in users can trigger the action
-    //add_action( 'wp_ajax_action', array($this, 'methodName') );
-    add_action( 'wp_ajax_load-JQueryColorboxTopDonations', array($this, 'getJQueryColorboxTopDonations') );
-    add_action( 'wp_ajax_load-JQueryColorboxLatestDonations', array($this, 'getJQueryColorboxLatestDonations') );
+    $this->donationLoaderUserAgent = defined('JQUERYCOLORBOX_USERAGENT') ? JQUERYCOLORBOX_USERAGENT : 'ColorboxDafap';
+    $this->donationLoaderPluginUrl = defined('JQUERYCOLORBOX_PLUGIN_URL') ? JQUERYCOLORBOX_PLUGIN_URL : plugin_dir_url(__FILE__);
+
+    add_action('wp_ajax_load-JQueryColorboxTopDonations', [$this, 'getJQueryColorboxTopDonations']);
+    add_action('wp_ajax_load-JQueryColorboxLatestDonations', [$this, 'getJQueryColorboxLatestDonations']);
   }
 
-  // JQueryColorboxDonationLoader()
-
   /**
-   * XML RPC Test, not used
-   *
-   * @since 1.0
-   * @access private
-   * @author Arne Franken
+   * Récupère les dons les plus importants via XML-RPC
    *
    * @return void
    */
-  //public function getTest() {
-//  function getTest() {
-//    $this->doGetDonations(xmlrpc_encode_request('demo.sayHello','doesntMatter'));
-//  }
-
-  // getTest()
-
-  /**
-   * Get top donations
-   *
-   * @since 1.0
-   * @access private
-   * @author Arne Franken
-   *
-   * @return void
-   */
-  //public function getJQueryColorboxTopDonations() {
-  function getJQueryColorboxTopDonations() {
-    $this->getAndReturnDonations('manageDonations.getTopDonations','top');
+  public function getJQueryColorboxTopDonations(): void {
+    $this->getAndReturnDonations('manageDonations.getTopDonations', 'top');
   }
 
-  // getJQueryColorboxTopDonations()
-
   /**
-   * Get latest donations
-   *
-   * @since 1.0
-   * @access private
-   * @author Arne Franken
+   * Récupère les derniers dons via XML-RPC
    *
    * @return void
    */
-  //public function getJQueryColorboxLatestDonations() {
-  function getJQueryColorboxLatestDonations() {
-    $this->getAndReturnDonations('manageDonations.getLatestDonations','latest');
+  public function getJQueryColorboxLatestDonations(): void {
+    $this->getAndReturnDonations('manageDonations.getLatestDonations', 'latest');
   }
 
-  // getJQueryColorboxLatestDonations()
-
   /**
-   * Build JavaScript array for loading donations.
-   * Also registers JavaScript file.
-   *
-   * @since 1.0
-   * @access public
-   * @author Arne Franken
+   * Enregistre et localise le script JavaScript pour les dons
    *
    * @return void
    */
-  //public function registerDonationJavaScript() {
-  function registerDonationJavaScript() {
-    $javaScriptArray = array('ajaxurl' => admin_url( 'admin-ajax.php' ),
-    'pluginName' => $this->donationLoaderPluginName);
+  public function registerDonationJavaScript(): void {
+    $javaScriptArray = [
+      'ajaxurl' => admin_url('admin-ajax.php'),
+      'pluginName' => $this->donationLoaderPluginName,
+    ];
 
-    wp_register_script('donation', $this->donationLoaderPluginUrl . '/js/donation.js', array('jquery'));
+    wp_register_script('donation', $this->donationLoaderPluginUrl . '/js/donation.js', ['jquery']);
     wp_enqueue_script('donation');
     wp_localize_script('donation', 'Donation', $javaScriptArray);
   }
 
-  // registerDonationJavaScript()
-
-  //=====================================================================================================
-
   /**
-   * Generic donation getter.
-   * Wrap the XML RPC call and return the value to the Ajax call
-   * Caches the serialized response for $cacheTime seconds.
+   * Méthode générique pour interroger XML-RPC et retourner les données via Ajax
    *
-   * @since 1.0
-   * @access private
-   * @author Arne Franken
-   *
-   * @param string $remoteProcedureCall RPC method name
-   * @param string $identifier cache-identifier for the request
-   * 
+   * @param string $remoteProcedureCall Nom de la méthode XML-RPC
+   * @param string $identifier Identifiant de cache
    * @return void
    */
-  //private function getAndReturnDonations($remoteProcedureCall,$identifier) {
-  function getAndReturnDonations($remoteProcedureCall,$identifier) {
-
-    // get the submitted parameters
-    $pluginName = $_POST['pluginName'];
-
+  private function getAndReturnDonations(string $remoteProcedureCall, string $identifier): void {
+    $pluginName = $_POST['pluginName'] ?? $this->donationLoaderPluginName;
     $key = $identifier . '_' . $pluginName;
 
-    //try to get response from DB cache
-    if ( false === ($response = get_site_transient($key) ) ) {
-      // response not found in DB cache, generate response
-      if(class_exists('IXR_Client')) {
-        $ixrClient = new IXR_Client(JQUERYCOLORBOX_DONATIONLOADER_XMLRPC_URL);
-        $ixrClient->useragent = JQUERYCOLORBOX_USERAGENT;
-        $ixrClient->query($remoteProcedureCall,$pluginName);
+    $response = get_site_transient($key);
 
+    if ($response === false) {
+      if (class_exists('IXR_Client')) {
+        $ixrClient = new IXR_Client(JQUERYCOLORBOX_DONATIONLOADER_XMLRPC_URL);
+        $ixrClient->useragent = $this->donationLoaderUserAgent;
+        $ixrClient->query($remoteProcedureCall, $pluginName);
         $response = $ixrClient->getResponse();
       }
       set_site_transient($key, serialize($response), JQUERYCOLORBOX_DONATIONLOADER_CACHETIME);
@@ -151,18 +113,8 @@ class JQueryColorboxDonationLoader {
       $response = unserialize($response);
     }
 
-    // header content-type must match the one used in the jQuery.post call.
-    //header( "content-type: application/json" );
-    header( "content-type: text/html" );
-
-    // echo instead of return, $response is given back to the Ajax call.
+    header("Content-Type: text/html");
     echo $response;
-    // IMPORTANT: don't forget to "exit"
     exit;
   }
-
-  // getAndReturnDonations()
 }
-
-// DonationLoader()
-?>
