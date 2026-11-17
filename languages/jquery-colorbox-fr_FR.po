@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: jQuery Colorbox Dafap Edition\n"
-"POT-Creation-Date: 2025-09-30 23:13+0200\n"
-"PO-Revision-Date: 2025-09-30 23:14+0200\n"
+"POT-Creation-Date: 2026-11-17 19:28+0100\n"
+"PO-Revision-Date: 2026-11-17 19:31+0100\n"
 "Last-Translator: \n"
 "Language-Team: Dafap\n"
 "Language: fr_FR\n"
@@ -10,62 +10,154 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-KeywordsList: _e;__;esc_html_e;esc_html__\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.10\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../includes/Classes/class-backend.php:103
+#: ../includes/Classes/Backend.php:83
+#: ../includes/obsolete/Classes/class-backend.php:103
 msgid "jQuery Colorbox Settings"
 msgstr "Réglages de l'extension jQuery Colorbo"
 
-#: ../includes/Classes/class-backend.php:104 ../includes/class-config.php:270
+#: ../includes/Classes/Backend.php:84 ../includes/Classes/Backend.php:105
+#: ../includes/Classes/Frontend.php:36
+#: ../includes/obsolete/Classes/class-backend.php:104
+#: ../includes/obsolete/class-config.php:270
 msgid "jQuery Colorbox"
 msgstr "jQuery Colorbox"
 
-#: ../includes/Classes/class-backend.php:138
-#: ../includes/Classes/class-backend.php:154
+#: ../includes/Classes/Backend.php:119 ../includes/Classes/Backend.php:138
+#: ../includes/obsolete/Classes/class-backend.php:138
+#: ../includes/obsolete/Classes/class-backend.php:154
 msgid "Access denied"
 msgstr "Accès refusé"
 
-#: ../includes/Classes/class-backend.php:170
+#: ../includes/Classes/Backend.php:156
+#: ../includes/obsolete/Classes/class-backend.php:170
 msgid "The plugin is enabled but the autoColorbox feature is disabled."
 msgstr "Le plugin est activé mais la fonction autoColorbox est désactivée."
 
-#: ../includes/Classes/class-frontend.php:214
+#: ../includes/Classes/Frontend.php:189
+#: ../includes/obsolete/Classes/class-frontend.php:214
 msgid "close"
 msgstr "fermer"
 
-#: ../includes/Classes/class-frontend.php:215
+#: ../includes/Classes/Frontend.php:190
+#: ../includes/obsolete/Classes/class-frontend.php:215
 msgid "next"
 msgstr "suivant"
 
-#: ../includes/Classes/class-frontend.php:216
+#: ../includes/Classes/Frontend.php:191
+#: ../includes/obsolete/Classes/class-frontend.php:216
 msgid "previous"
 msgstr "précédent"
 
-#: ../includes/Classes/class-frontend.php:217
+#: ../includes/Classes/Frontend.php:192
+#: ../includes/obsolete/Classes/class-frontend.php:217
 msgid "start slideshow"
 msgstr "démarrer le diaporama"
 
-#: ../includes/Classes/class-frontend.php:218
+#: ../includes/Classes/Frontend.php:193
+#: ../includes/obsolete/Classes/class-frontend.php:218
 msgid "stop slideshow"
 msgstr "arrêter le diaporama"
 
-#: ../includes/Classes/class-frontend.php:219
+#: ../includes/Classes/Frontend.php:194
+#: ../includes/obsolete/Classes/class-frontend.php:219
 msgid "{current} of {total} images"
 msgstr "{current} sur {total} images"
 
-#: ../includes/Classes/class-frontend.php:220
+#: ../includes/Classes/Frontend.php:195
+#: ../includes/obsolete/Classes/class-frontend.php:220
 msgid "This content failed to load."
 msgstr "Ce contenu n'a pas pu être chargé."
 
-#: ../includes/Classes/class-frontend.php:221
+#: ../includes/Classes/Frontend.php:196
+#: ../includes/obsolete/Classes/class-frontend.php:221
 msgid "This image failed to load."
 msgstr "Cette image n'a pas pu être chargée."
 
-#: ../includes/class-jquery-colorbox.php:129
+#: ../includes/Config.php:73
+msgid "Theme #1"
+msgstr "Thème n°1"
+
+#: ../includes/Config.php:74
+msgid "Theme #2"
+msgstr "Thème n°2"
+
+#: ../includes/Config.php:75
+msgid "Theme #3"
+msgstr "Thème n°3"
+
+#: ../includes/Config.php:76
+msgid "Theme #4"
+msgstr "Thème n°4"
+
+#: ../includes/Config.php:77
+msgid "Theme #5"
+msgstr "Thème n°5"
+
+#: ../includes/Config.php:78
+msgid "Theme #6"
+msgstr "Thème n°6"
+
+#: ../includes/Config.php:79
+msgid "Theme #7"
+msgstr "Thème n°7"
+
+#: ../includes/Config.php:80
+msgid "Theme #8"
+msgstr "Thème n°8"
+
+#: ../includes/Config.php:81
+msgid "Theme #9"
+msgstr "Thème n°9"
+
+#: ../includes/Config.php:82
+msgid "Theme #10"
+msgstr "Thème n°10"
+
+#: ../includes/Config.php:83
+msgid "Theme #11"
+msgstr "Thème n°11"
+
+#: ../includes/Config.php:90
+msgid "Pixels"
+msgstr ""
+
+#: ../includes/Config.php:91
+msgid "Ems"
+msgstr ""
+
+#: ../includes/Config.php:92
+msgid "Rems"
+msgstr ""
+
+#: ../includes/Config.php:93
+msgid "Pourcentage"
+msgstr ""
+
+#: ../includes/Config.php:100
+msgid "Élasticité"
+msgstr ""
+
+#: ../includes/Config.php:101
+msgid "Fondu"
+msgstr ""
+
+#: ../includes/Config.php:102
+msgid "Aucun"
+msgstr ""
+
+#: ../includes/JQueryColorbox.php:65
+#: ../includes/obsolete/class-jquery-colorbox.php:129
 msgid "Settings"
 msgstr "Réglages"
+
+#: ../includes/Traits/TemplateRenderTrait.php:32
+#, php-format
+msgid "Template introuvable : %s"
+msgstr "Modèle introuvable : %s"
 
 #: ../templates/backend/settings-page.phtml:43
 #, php-format
