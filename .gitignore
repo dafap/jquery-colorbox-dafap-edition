@@ -1,0 +1,11 @@
+# -- Composer & Dépendances --
+/vendor/
+composer.lock
+
+# -- WordPress / IDE / Système --
+.vscode/
+TODO.md
+zzz_*.php
+includes/obsolete/
+*.zip
+*.log

@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * jQuery Colorbox Dafap Edition – Template Frontend MetaLink
+ *
+ * @package   jquery-colorbox-dafap-edition
+ * @author    Alain Pomirol (Dafap), basé sur le travail original d'Arne Franken
+ * @copyright 2025 Alain Pomirol
+ * @license   GPL-2.0-or-later
+ * @link      https://github.com/dafap/jquery-colorbox-dafap-edition
+ * @version   5.0
+ * @since     5.0
+ * @file      templates/frontend/meta-link.phtml
+ * @purpose   Affiche le lien sur le dépôt du plugin
+ */
+?>
+<li id="colorboxLink">
+    <?php _e('Using', $textDomain); ?>
+    <a href="<?php echo esc_url($repoUrl); ?>" target="_blank" title="<?php echo esc_attr($pluginName); ?>">
+        <?php echo esc_html($pluginName . ' - version ' . $pluginVersion); ?>
+    </a>
+</li>
