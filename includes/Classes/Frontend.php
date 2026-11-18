@@ -23,7 +23,6 @@ class Frontend
     use TemplateRenderTrait, UtilsTrait;
 
     private array $colorboxSettings = [];
-    private string $pluginName = '';
 
     /**
      * Initialise les hooks et les filtres côté public (frontend).
@@ -33,7 +32,6 @@ class Frontend
     public function __construct(array $colorboxSettings)
     {
         $this->colorboxSettings = $colorboxSettings;
-        $this->pluginName = __('jQuery Colorbox', JQC_TEXTDOMAIN);
 
         if (!$this->isTrue('removeLinkFromMetaBox')) {
             add_action('wp_meta', [$this, 'renderMetaLink']);
@@ -57,7 +55,7 @@ class Frontend
     public function renderMetaLink(): void
     {
         $this->templateRender('frontend/meta-link.phtml', [
-            'pluginName'    => $this->pluginName,
+            'pluginName'    => __('jQuery Colorbox', JQC_TEXTDOMAIN),
             'repoUrl'       => Config::REPO_URL,
             'pluginVersion' => JQC_VERSION,
             'textDomain'    => JQC_TEXTDOMAIN,
@@ -154,7 +152,7 @@ class Frontend
     private function addColorboxWrapperJS(): void
     {
 
-        $path = $this->isTrue('debugMode') ? 'assets/js/jquery-colorbox-wrapper.js' : 'assets/js/jquery-colorbox-wrapper.min.js';
+        $path = $this->isTrue('debugMode') ? 'assets/js/jquery-colorbox-wrapper.js' : 'assets/js/jquery-colorbox-wrapper-min.js';
 
         wp_enqueue_script(
             'colorbox-wrapper',

@@ -60,7 +60,7 @@ class Backend
             'jquery-colorbox-admin',
             JQC_URL . $path_js,
             ['jquery'],
-            JQC_VERSION,
+            '1.0", //JQC_VERSION,
             true
         );
 
