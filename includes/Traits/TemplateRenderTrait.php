@@ -17,14 +17,14 @@ trait TemplateRenderTrait
     /**
      * Charge et affiche un fichier de template avec des variables passées en contexte.
      *
-     * @param string $templatePath Chemin relatif du template par rapport au dossier views/ du plugin.
+     * @param string $templatePath Chemin relatif du template par rapport au dossier templates/ du plugin.
      * @param array  $data         Tableau associatif des variables à rendre disponibles dans le template.
      * @return void
      */
     public function templateRender(string $templatePath, array $data = []): void
     {
         // Utilisation de JQC_PATH défini à la racine du plugin
-        $file = rtrim(JQC_PATH, '/\\') . '/views/' . ltrim($templatePath, '/\\');
+        $file = rtrim(JQC_PATH, '/\\') . '/templates/' . ltrim($templatePath, '/\\');
 
         if (!file_exists($file)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
