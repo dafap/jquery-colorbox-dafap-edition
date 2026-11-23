@@ -1,472 +1,280 @@
 /**
- * @package Techotronic
- * @subpackage jQuery Colorbox
- *
- * @since 3.2
- * @author Arne Franken
- * @author (Contributor) Fabian Wolf (http://usability-idealist.de/)
- * @author (Contributor) Jason Stapels (jstapels@realmprojects.com)
- *
- * Colorbox Javascript
+ * jQuery Colorbox Wrapper (Dafap Edition)
  */
-var COLORBOX_INTERNAL_LINK_PATTERN = /^#.*/;
-var COLORBOX_SUFFIX_PATTERN = /\.(?:jpe?g|gif|png|bmp)/i;
-var COLORBOX_MANUAL = "colorbox-manual";
-var COLORBOX_OFF_CLASS = ".colorbox-off";
-var COLORBOX_LINK_CLASS = ".colorbox-link";
-var COLORBOX_OFF = "colorbox-off";
-var COLORBOX_CLASS_PATTERN = "colorbox-[0-9]+";
-var COLORBOX_LINK_CLASS_PATTERN = "colorbox-link-[0-9]+";
+(function($) {
+  'use strict';
 
-/**
- * This block calls all functions on page load.
- */
-jQuery(document).ready(function() {
+  var COLORBOX_INTERNAL_LINK_PATTERN = /^#.*/;
+  var COLORBOX_SUFFIX_PATTERN = /\.(?:jpe?g|gif|png|bmp|webp)/i;
+  var COLORBOX_MANUAL = 'colorbox-manual';
+  var COLORBOX_OFF = 'colorbox-off';
+  var COLORBOX_CLASS_PATTERN = 'colorbox-[0-9]+';
+  var COLORBOX_LINK_CLASS_PATTERN = 'colorbox-link-[0-9]+';
 
-  emulateConsoleForIE();
+  var ColorboxLocal = {};
 
-  console.group('jQuery Colorbox log messages');
-  //check if config JavaScript was successfully inserted. Load defaults otherwise.
-  if(typeof jQueryColorboxSettingsArray !== 'object') {
-    jQueryColorboxSettingsArray = getColorboxConfigDefaults();
-  }
+  /**
+   * Calcule maxWidth et maxHeight en fonction de la taille réelle de la fenêtre
+   * afin d'éviter toute troncature sur smartphone en portrait ou paysage.
+   */
+  function getResponsiveMaxDimensions(configuredMaxWidth, configuredMaxHeight) {
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var isSmallScreen = vw > 0 && vw < 768;
 
-  if (jQueryColorboxSettingsArray.autoColorboxJavaScript === "true") {
-    colorboxAddManualClass();
-  }
-  if (jQueryColorboxSettingsArray.colorboxAddClassToLinks === "true") {
-    colorboxAddClassToLinks();
-  }
-  if (jQueryColorboxSettingsArray.autoHideFlash === "true") {
-    colorboxHideFlash();
-    colorboxShowFlash();
-  }
-  colorboxSelector();
-  console.groupEnd();
-});
+    // Marge confortable pour éviter le débordement latéral ou vertical sur mobile
+    var viewportMaxW = isSmallScreen ? Math.round(vw * 0.92) : Math.round(vw * 0.90);
+    var viewportMaxH = isSmallScreen ? Math.round(vh * 0.82) : Math.round(vh * 0.88);
 
-/**
- * Make console.log do nothing in IE 9 and below, otherwise JavaScript would break
- *
- * @since 4.3
- * @author Arne Franken
- */
-(function(jQuery) {
-  emulateConsoleForIE = function() {
+    var finalMaxW = viewportMaxW ? viewportMaxW + 'px' : configuredMaxWidth;
+    var finalMaxH = viewportMaxH ? viewportMaxH + 'px' : configuredMaxHeight;
 
-    if (!console) {
-      console = {};
-    }
-    // union of Chrome, FF, IE, and Safari console methods
-    var m = [
-      "log", "info", "warn", "error", "debug", "trace", "dir", "group",
-      "groupCollapsed", "groupEnd", "time", "timeEnd", "profile", "profileEnd",
-      "dirxml", "assert", "count", "markTimeline", "timeStamp", "clear"
-    ];
-    // define undefined methods as noops to prevent errors
-    for (var i = 0; i < m.length; i++) {
-      if (!console[m[i]]) {
-        console[m[i]] = function() {};
+    // Si une valeur max est configurée en pixels, on borne au maximum du viewport
+    if (configuredMaxWidth && typeof configuredMaxWidth === 'string' && configuredMaxWidth.indexOf('px') !== -1 && viewportMaxW) {
+      var numW = parseInt(configuredMaxWidth, 10);
+      if (!isNaN(numW) && numW > 0) {
+        finalMaxW = Math.min(numW, viewportMaxW) + 'px';
       }
     }
 
+    if (configuredMaxHeight && typeof configuredMaxHeight === 'string' && configuredMaxHeight.indexOf('px') !== -1 && viewportMaxH) {
+      var numH = parseInt(configuredMaxHeight, 10);
+      if (!isNaN(numH) && numH > 0) {
+        finalMaxH = Math.min(numH, viewportMaxH) + 'px';
+      }
+    }
+
+    return {
+      maxWidth: finalMaxW,
+      maxHeight: finalMaxH
+    };
   }
-})(jQuery);
 
-/**
- * colorboxShowFlash
- *
- * show embedded flash objects when Colorbox closes
- */
-(function(jQuery) {
-  colorboxShowFlash = function() {
-    jQuery(document).bind('cbox_closed', function() {
-      console.group('Showing flash objects');
-      var flashObjects = document.getElementsByTagName("object");
-      for (var i = 0; i < flashObjects.length; i++) {
-        console.debug('Show object %o',flashObjects[i]);
-        flashObjects[i].style.visibility = "visible";
+  /**
+   * Ajoute la classe colorbox-link aux liens pointant vers des images
+   * qui ne contiennent pas déjà une balise <img>.
+   */
+  function colorboxAddClassToLinks() {
+    $('a').each(function(_, link) {
+      var $link = $(link);
+      if ($link.find('img').length > 0) {
+        return;
       }
-      var flashEmbeds = document.getElementsByTagName("embed");
-      for (var j = 0; j < flashEmbeds.length; j++) {
-        console.debug('Show embed %o',flashEmbeds[j]);
-        flashEmbeds[j].style.visibility = "visible";
-      }
-      console.groupEnd();
-    });
-  };
-})(jQuery);
 
-// colorboxShowFlash()
+      var linkClass = $link.attr('class');
+      var linkHref = $link.attr('href');
 
-/**
- * colorboxHideFlash
- *
- * hide embedded flash objects when Colorbox opens
- */
-(function(jQuery) {
-  colorboxHideFlash = function() {
-    jQuery(document).bind('cbox_open', function() {
-      console.group('Hiding flash objects');
-      var flashObjects = document.getElementsByTagName("object");
-      for (var i = 0; i < flashObjects.length; i++) {
-        console.debug('Hide object %o',flashObjects[i]);
-        flashObjects[i].style.visibility = "hidden";
-      }
-      var flashEmbeds = document.getElementsByTagName("embed");
-      for (var j = 0; j < flashEmbeds.length; j++) {
-        console.debug('Hide embed %o',flashEmbeds[j]);
-        flashEmbeds[j].style.visibility = "hidden";
-      }
-      console.groupEnd();
-    });
-  };
-})(jQuery);
-
-// colorboxHideFlash()
-
-/**
- * colorboxAddClassToLinks
- *
- * add colorbox-link to anchor tags
- */
-(function(jQuery) {
-  colorboxAddClassToLinks = function() {
-    console.group('Add colorbox-link class to links pointing to images');
-    jQuery("a:not(:contains(img))").each(function(index, link) {
-      var $link = jQuery(link);
-      var $linkClass = $link.attr("class");
-      if ($linkClass !== undefined && !$linkClass.match('colorbox')) {
-        var $linkHref = $link.attr("href");
-        if ($linkHref !== undefined && jQuery(link).attr("href").match(COLORBOX_SUFFIX_PATTERN)) {
-          console.debug("Add colorbox-link class to %o.",$link);
+      if (linkHref && linkHref.match(COLORBOX_SUFFIX_PATTERN)) {
+        if (!linkClass || !linkClass.match('colorbox')) {
           $link.addClass('colorbox-link');
         }
       }
     });
-    console.groupEnd();
-  };
-})(jQuery);
+  }
 
-// colorboxAddClassToLinks()
-
-/**
- * colorboxAddManualClass
- *
- * add colorbox-manual to ALL img tags
- */
-(function(jQuery) {
-  colorboxAddManualClass = function() {
-    console.group('Add colorbox-manual class to images');
-    jQuery("img").each(function(index, image) {
-      var $img = jQuery(image);
-      var $imgClass = $img.attr("class");
-      if ($imgClass === undefined || !$imgClass.match('colorbox')) {
-        console.debug('Add colorbox-manual class to image %o',$img);
-        $img.addClass('colorbox-manual');
+  /**
+   * Ajoute la classe colorbox-manual aux balises <img> qui n'ont pas encore de classe colorbox.
+   */
+  function colorboxAddManualClass() {
+    $('img').each(function(_, image) {
+      var $img = $(image);
+      var imgClass = $img.attr('class');
+      if (!imgClass || !imgClass.match('colorbox')) {
+        $img.addClass(COLORBOX_MANUAL);
       }
     });
-    console.groupEnd();
-  };
-})(jQuery);
+  }
 
-// colorboxAddManualClass()
+  /**
+   * Sélectionne les liens d'images et les liens colorbox-link.
+   */
+  function colorboxSelector() {
+    $('a:has(img[class*=colorbox-]):not(.colorbox-off)').each(function(index, link) {
+      ColorboxLocal = $.extend(true, {}, window.jQueryColorboxSettingsArray);
 
-/**
- * colorboxSelector
- *
- * call colorboxImage on all "a" elements that have a nested "img"
- */
-(function(jQuery) {
-  colorboxSelector = function() {
-    console.group('Find image links and apply colorbox effect.');
-    jQuery("a:has(img[class*=colorbox-]):not(.colorbox-off)").each(function(index, link) {
-      console.group("Found link %o.",link);
-      //create local copy of Colorbox array so that modifications can be made for every link
-      ColorboxLocal = jQuery.extend(true,{},jQueryColorboxSettingsArray);
+      var dims = getResponsiveMaxDimensions(
+        ColorboxLocal.colorboxImageMaxWidth,
+        ColorboxLocal.colorboxImageMaxHeight
+      );
 
-      //set variables for images
-      ColorboxLocal.colorboxMaxWidth = ColorboxLocal.colorboxImageMaxWidth;
-      ColorboxLocal.colorboxMaxHeight = ColorboxLocal.colorboxImageMaxHeight;
+      ColorboxLocal.colorboxMaxWidth = dims.maxWidth;
+      ColorboxLocal.colorboxMaxHeight = dims.maxHeight;
       ColorboxLocal.colorboxHeight = ColorboxLocal.colorboxImageHeight;
       ColorboxLocal.colorboxWidth = ColorboxLocal.colorboxImageWidth;
-      var $linkHref = jQuery(link).attr("href");
-      if ($linkHref !== undefined && $linkHref.match(COLORBOX_SUFFIX_PATTERN)) {
+
+      var linkHref = $(link).attr('href');
+      if (linkHref && linkHref.match(COLORBOX_SUFFIX_PATTERN)) {
         colorboxImage(index, link);
       }
-      //else {
-        //TODO: does not work, every link from an image will be opened in a colorbox...
-        //colorboxLink(index, link,$linkHref)
-      //}
-      console.groupEnd();
     });
-    console.groupEnd();
 
-    console.group('Find links and apply colorbox effect.');
-    jQuery("a[class*=colorbox-link]").each(function(index, link) {
-      console.group("Found link %o.",link);
-      //create local copy of Colorbox array so that modifications can be made for every link
-      ColorboxLocal = jQuery.extend(true,{},jQueryColorboxSettingsArray);
+    $('a[class*=colorbox-link]').each(function(index, link) {
+      ColorboxLocal = $.extend(true, {}, window.jQueryColorboxSettingsArray);
 
-      var $linkHref = jQuery(link).attr("href");
-      if ($linkHref !== undefined) {
-        colorboxLink(index, link,$linkHref);
+      var linkHref = $(link).attr('href');
+      if (linkHref) {
+        colorboxLink(index, link, linkHref);
       }
-      console.groupEnd();
     });
-    console.groupEnd();
-  };
-})(jQuery);
+  }
 
-// colorboxSelector()
+  /**
+   * Prépare les options Colorbox pour un lien contenant une image.
+   */
+  function colorboxImage(index, link) {
+    var $link = $(link);
+    var $image = $link.find('img:first');
+    var linkClasses = $link.attr('class');
 
-/**
- * colorboxImage
- *
- * selects only links that point to images and sets necessary variables
- */
-(function(jQuery) {
-  colorboxImage = function(index, link) {
-    var $image = jQuery(link).find("img:first");
-    //check if the link has a colorbox class
-    var $linkClasses = jQuery(link).attr("class");
-    if ($linkClasses !== undefined) {
-      ColorboxLocal.colorboxGroupId = $linkClasses.match(COLORBOX_CLASS_PATTERN) || $linkClasses.match(COLORBOX_MANUAL);
+    ColorboxLocal.colorboxGroupId = null;
+
+    if (linkClasses) {
+      ColorboxLocal.colorboxGroupId = linkClasses.match(COLORBOX_CLASS_PATTERN) || linkClasses.match(COLORBOX_MANUAL);
     }
+
     if (!ColorboxLocal.colorboxGroupId) {
-      // link does not have colorbox class. Check if image has colorbox class.
-      var $imageClasses = $image.attr("class");
-      if ($imageClasses !== undefined && !$imageClasses.match(COLORBOX_OFF)) {
-        //groupId is either the automatically created colorbox-123 or the manually added colorbox-manual
-        ColorboxLocal.colorboxGroupId = $imageClasses.match(COLORBOX_CLASS_PATTERN) || $imageClasses.match(COLORBOX_MANUAL);
+      var imageClasses = $image.attr('class');
+      if (imageClasses && !imageClasses.match(COLORBOX_OFF)) {
+        ColorboxLocal.colorboxGroupId = imageClasses.match(COLORBOX_CLASS_PATTERN) || imageClasses.match(COLORBOX_MANUAL);
       }
-      //only call Colorbox if there is a groupId for the image
+
       if (ColorboxLocal.colorboxGroupId) {
-        //convert groupId to string and lose "colorbox-" for easier use
         ColorboxLocal.colorboxGroupId = ColorboxLocal.colorboxGroupId.toString().split('-')[1];
 
-        //if groudId is colorbox-manual, set groupId to "nofollow" so that images are not grouped
-        if (ColorboxLocal.colorboxGroupId === "manual") {
-          ColorboxLocal.colorboxGroupId = "nofollow";
-        }
-        //the title of the img is used as the title for the Colorbox.
-        var $imageTitle = $image.attr("title");
-        if ($imageTitle !== undefined) {
-          ColorboxLocal.colorboxTitle = $imageTitle;
-        }
-        else {
-          //try to use the alt of the img as the title for the Colorbox.
-          var $imageAlt = $image.attr("alt");
-          if ($imageAlt !== undefined) {
-            ColorboxLocal.colorboxTitle = $imageAlt;
-          }
+        if (ColorboxLocal.colorboxGroupId === 'manual') {
+          ColorboxLocal.colorboxGroupId = 'nofollow';
         }
 
-        if (jQueryColorboxSettingsArray.addZoomOverlay === "true") {
-          colorboxAddZoomOverlayToImages(jQuery(link), $image);
+        var imageTitle = $image.attr('title');
+        var imageAlt = $image.attr('alt');
+        ColorboxLocal.colorboxTitle = imageTitle !== undefined ? imageTitle : (imageAlt !== undefined ? imageAlt : '');
+
+        if (window.jQueryColorboxSettingsArray.addZoomOverlay === 'true') {
+          colorboxAddZoomOverlayToImages($link, $image);
         }
-        console.debug("Call colorbox for image %o.",$image);
+
         colorboxWrapper(link);
       }
     }
-  };
-})(jQuery);
+  }
 
-// colorboxImage()
+  /**
+   * Prépare les options Colorbox pour un lien avec classe colorbox-link.
+   */
+  function colorboxLink(index, link, linkHref) {
+    var $link = $(link);
+    var groupMatch = ($link.attr('class') || '').match(COLORBOX_LINK_CLASS_PATTERN);
 
-/**
- * colorboxLink
- *
- * sets necessary variables
- */
-(function(jQuery) {
-  colorboxLink = function(index, link, linkHref) {
-
-    //class attribute must exist, otherwise this method wouldn't be called
-    ColorboxLocal.colorboxGroupId = jQuery(link).attr("class").match(COLORBOX_LINK_CLASS_PATTERN);
-
-    if(ColorboxLocal.colorboxGroupId !== undefined && ColorboxLocal.colorboxGroupId !== null) {
-      //convert groupId to string and lose "colorbox-link-" for easier use
-      ColorboxLocal.colorboxGroupId = ColorboxLocal.colorboxGroupId.toString().split('-')[2];
-    }
-    else {
-      //no matching class found for link, Colorbox links should not be grouped
-      ColorboxLocal.colorboxGroupId = "nofollow";
+    if (groupMatch !== null) {
+      ColorboxLocal.colorboxGroupId = groupMatch.toString().split('-')[2];
+    } else {
+      ColorboxLocal.colorboxGroupId = 'nofollow';
     }
 
-    var $link = jQuery(link);
-    //the title of the link is used as the title for the Colorbox
-    var $linkTitle = $link.attr("title");
-    if ($linkTitle !== undefined) {
-      ColorboxLocal.colorboxTitle = $linkTitle;
-    }
-    else {
-      ColorboxLocal.colorboxTitle = '';
-    }
+    var linkTitle = $link.attr('title');
+    ColorboxLocal.colorboxTitle = linkTitle !== undefined ? linkTitle : '';
 
-    // already checked for ($linkHref !== undefined) before calling this method
     if (linkHref.match(COLORBOX_SUFFIX_PATTERN)) {
-      //link points to an image, set variables accordingly
-      ColorboxLocal.colorboxMaxWidth = ColorboxLocal.colorboxImageMaxWidth;
-      ColorboxLocal.colorboxMaxHeight = ColorboxLocal.colorboxImageMaxHeight;
+      var dims = getResponsiveMaxDimensions(
+        ColorboxLocal.colorboxImageMaxWidth,
+        ColorboxLocal.colorboxImageMaxHeight
+      );
+      ColorboxLocal.colorboxMaxWidth = dims.maxWidth;
+      ColorboxLocal.colorboxMaxHeight = dims.maxHeight;
       ColorboxLocal.colorboxHeight = ColorboxLocal.colorboxImageHeight;
       ColorboxLocal.colorboxWidth = ColorboxLocal.colorboxImageWidth;
-    }
-    else {
-      //link points to something else, set variables accordingly
+    } else {
       ColorboxLocal.colorboxMaxWidth = false;
       ColorboxLocal.colorboxMaxHeight = false;
       ColorboxLocal.colorboxHeight = ColorboxLocal.colorboxLinkHeight;
       ColorboxLocal.colorboxWidth = ColorboxLocal.colorboxLinkWidth;
 
       if (linkHref.match(COLORBOX_INTERNAL_LINK_PATTERN)) {
-        //link points to inline content
         ColorboxLocal.colorboxInline = true;
-      }
-      else {
-        //link points to something else, load in iFrame
+      } else {
         ColorboxLocal.colorboxIframe = true;
       }
     }
-    console.debug("Call colorbox for link %o.",link);
+
     colorboxWrapper(link);
-  };
-})(jQuery);
+  }
 
-// colorboxLink()
-
-/**
- * colorboxWrapper
- *
- * actually calls the colorbox function on the links
- * elements with the same groupId in the class attribute are grouped
- */
-(function(jQuery) {
-  colorboxWrapper = function(link) {
-    //workaround for wp_localize_script behavior:
-    //the function puts booleans as strings into the "ColorboxLocal" array...
-    jQuery.each(ColorboxLocal, function(key, value) {
-      if (value === "false") {
+  /**
+   * Normalise les booléens issus de wp_localize_script et appelle $.colorbox().
+   */
+  function colorboxWrapper(link) {
+    $.each(ColorboxLocal, function(key, value) {
+      if (value === 'false') {
         ColorboxLocal[key] = false;
-      }
-      else if (value === "true") {
+      } else if (value === 'true') {
         ColorboxLocal[key] = true;
       }
     });
 
-    console.debug("Apply colorbox to link %o with values %o",link,ColorboxLocal);
+    // Garantit la mise à l'échelle des photos sur écrans réduits
+    var scalePhotosValue = ColorboxLocal.colorboxScalePhotos !== undefined ? ColorboxLocal.colorboxScalePhotos : true;
 
-    //finally call Colorbox library
-    jQuery(link).colorbox({
-      // --- settings
-      transition:ColorboxLocal.colorboxTransition,
-      speed:parseInt(ColorboxLocal.colorboxSpeed),
-      //href=false
-      title:ColorboxLocal.colorboxTitle,
-      rel:ColorboxLocal.colorboxGroupId,
-      scalePhotos:ColorboxLocal.colorboxScalePhotos,
-      scrolling:ColorboxLocal.colorboxScrolling,
-      opacity:ColorboxLocal.colorboxOpacity,
-      //open=false
-      //returnFocus=true
-      //fastIframe=true
-      preloading:ColorboxLocal.colorboxPreloading,
-      overlayClose:ColorboxLocal.colorboxOverlayClose,
-      escKey:ColorboxLocal.colorboxEscKey,
-      arrowKey:ColorboxLocal.colorboxArrowKey,
-      loop:ColorboxLocal.colorboxLoop,
-      //data
-
-      //--- Internationalization
-      current:ColorboxLocal.colorboxCurrent,
-      previous:ColorboxLocal.colorboxPrevious,
-      next:ColorboxLocal.colorboxNext,
-      close:ColorboxLocal.colorboxClose,
-      xhrError:ColorboxLocal.colorboxXhrError,
-      imgError:ColorboxLocal.colorboxImgError,
-
-      // --- content type
-      iframe:ColorboxLocal.colorboxIframe,
-      inline:ColorboxLocal.colorboxInline,
-      //html
-      //photo
-      //ajax
-
-      // --- dimensions
-      width:ColorboxLocal.colorboxWidth,
-      height:ColorboxLocal.colorboxHeight,
-      //innerWidth=false
-      //innerHeight=false
-      initialWidth:ColorboxLocal.colorboxInitialWidth,
-      initialHeight:ColorboxLocal.colorboxInitialHeight,
-      maxWidth:ColorboxLocal.colorboxMaxWidth,
-      maxHeight:ColorboxLocal.colorboxMaxHeight,
-
-      // --- slideshow
-      slideshow:ColorboxLocal.colorboxSlideshow,
-      slideshowSpeed:parseInt(ColorboxLocal.colorboxSlideshowSpeed),
-      slideshowAuto:ColorboxLocal.colorboxSlideshowAuto,
-      slideshowStart:ColorboxLocal.colorboxSlideshowStart,
-      slideshowStop:ColorboxLocal.colorboxSlideshowStop
-
-      // --- positioning
-      //fixed:false
-      //top:false
-      //bottom:false
-      //left: false
-      //right:false
-
-
-      // --- callbacks
-      //onOpen
-      //onLoad
-      //onComplete
-      //onCleanup
-      //onClosed
+    $(link).colorbox({
+      transition: ColorboxLocal.colorboxTransition,
+      speed: parseInt(ColorboxLocal.colorboxSpeed, 10) || 350,
+      title: ColorboxLocal.colorboxTitle,
+      rel: ColorboxLocal.colorboxGroupId,
+      scalePhotos: scalePhotosValue,
+      scrolling: ColorboxLocal.colorboxScrolling,
+      opacity: ColorboxLocal.colorboxOpacity,
+      preloading: ColorboxLocal.colorboxPreloading,
+      overlayClose: ColorboxLocal.colorboxOverlayClose,
+      escKey: ColorboxLocal.colorboxEscKey,
+      arrowKey: ColorboxLocal.colorboxArrowKey,
+      loop: ColorboxLocal.colorboxLoop,
+      current: ColorboxLocal.colorboxCurrent,
+      previous: ColorboxLocal.colorboxPrevious,
+      next: ColorboxLocal.colorboxNext,
+      close: ColorboxLocal.colorboxClose,
+      xhrError: ColorboxLocal.colorboxXhrError,
+      imgError: ColorboxLocal.colorboxImgError,
+      iframe: ColorboxLocal.colorboxIframe,
+      inline: ColorboxLocal.colorboxInline,
+      width: ColorboxLocal.colorboxWidth,
+      height: ColorboxLocal.colorboxHeight,
+      initialWidth: ColorboxLocal.colorboxInitialWidth,
+      initialHeight: ColorboxLocal.colorboxInitialHeight,
+      maxWidth: ColorboxLocal.colorboxMaxWidth,
+      maxHeight: ColorboxLocal.colorboxMaxHeight,
+      slideshow: ColorboxLocal.colorboxSlideshow,
+      slideshowSpeed: parseInt(ColorboxLocal.colorboxSlideshowSpeed, 10) || 2500,
+      slideshowAuto: ColorboxLocal.colorboxSlideshowAuto,
+      slideshowStart: ColorboxLocal.colorboxSlideshowStart,
+      slideshowStop: ColorboxLocal.colorboxSlideshowStop
     });
-  };
-})(jQuery);
+  }
 
-// colorboxWrapper()
+  /**
+   * Ajoute l'effet de survol zoom sur les liens d'images.
+   */
+  function colorboxAddZoomOverlayToImages($link, $image) {
+    var $zoomHover = $('<span class="zoomHover" style="opacity: 0; margin: 0; padding: 0;"></span>');
 
-/**
- * Add zoom classes and effects to links and images.
- */
-(function (jQuery) {
-  colorboxAddZoomOverlayToImages = function ($link, $image) {
-    console.debug("Add zoom hover to link %o",$link);
-    var $zoomHover = jQuery('<span class="zoomHover" style="opacity: 0; margin: 0; padding: 0;"></span>');
-
-    //add float from image to link, otherwise the zoom overlay would not be visible
-    $link.css("float",$image.css("float"));
-
+    $link.css('float', $image.css('float'));
     $link.append($zoomHover);
-    $link.addClass("zoomLink");
+    $link.addClass('zoomLink');
 
     $link.hover(
-        function () {
-          //mouseIn, show zoom overlay
-          $zoomHover.stop().animate({opacity:0.8}, 300);
-          $image.stop().animate({opacity:0.6}, 300);
-        },
-        function () {
-          //mouseOut, hide zoom overlay
-          $zoomHover.stop().animate({ opacity:0 }, 300);
-          $image.stop().animate({ opacity:1 }, 300);
-        });
-  };
-})(jQuery);
+      function() {
+        $zoomHover.stop().animate({ opacity: 0.8 }, 300);
+        $image.stop().animate({ opacity: 0.6 }, 300);
+      },
+      function() {
+        $zoomHover.stop().animate({ opacity: 0 }, 300);
+        $image.stop().animate({ opacity: 1 }, 300);
+      }
+    );
+  }
 
-// colorboxAddZoomOverlayToImages()
-
-
-/**
- * colorboxConfigDefaults
- *
- * default values for colorbox configuration in case the configuration array was not added successfully to the HTML.
- */
-(function(jQuery) {
-  getColorboxConfigDefaults = function() {
+  /**
+   * Valeurs de repli si jQueryColorboxSettingsArray n'est pas défini.
+   */
+  function getColorboxConfigDefaults() {
     return {
       colorboxInline: false,
       colorboxIframe: false,
@@ -478,45 +286,79 @@ jQuery(document).ready(function() {
       colorboxMaxHeight: false,
       colorboxSlideshow: false,
       colorboxSlideshowAuto: false,
-      colorboxScalePhotos: false,
+      colorboxScalePhotos: true,
       colorboxPreloading: false,
       colorboxOverlayClose: false,
       colorboxLoop: false,
       colorboxEscKey: true,
-      colorboxArrowKey:true,
-      colorboxScrolling:false,
-      colorboxOpacity:'0.85',
-      colorboxTransition:'elastic',
-      colorboxSpeed:'350',
-      colorboxSlideshowSpeed:'2500',
+      colorboxArrowKey: true,
+      colorboxScrolling: false,
+      colorboxOpacity: '0.85',
+      colorboxTransition: 'elastic',
+      colorboxSpeed: '350',
+      colorboxSlideshowSpeed: '2500',
       colorboxClose: 'close',
-      colorboxNext:'next',
-      colorboxPrevious:'previous',
-      colorboxSlideshowStart:'start slideshow',
-      colorboxSlideshowStop:'stop slideshow',
-      colorboxCurrent:'{current} of {total} images',
-      colorboxXhrError:'This content failed to load.',
-      colorboxImgError:'This image failed to load.',
-
+      colorboxNext: 'next',
+      colorboxPrevious: 'previous',
+      colorboxSlideshowStart: 'start slideshow',
+      colorboxSlideshowStop: 'stop slideshow',
+      colorboxCurrent: '{current} of {total} images',
+      colorboxXhrError: 'This content failed to load.',
+      colorboxImgError: 'This image failed to load.',
       colorboxImageMaxWidth: false,
       colorboxImageMaxHeight: false,
       colorboxImageHeight: false,
-      colorboxImageWidth:false,
-
+      colorboxImageWidth: false,
       colorboxLinkHeight: false,
       colorboxLinkWidth: false,
-
       colorboxInitialHeight: 100,
       colorboxInitialWidth: 300,
       autoColorboxJavaScript: false,
-      autoHideFlash: false,
       autoColorbox: false,
       autoColorboxGalleries: false,
       colorboxAddClassToLinks: false,
       useGoogleJQuery: false,
       addZoomOverlay: false
     };
-  };
-})(jQuery);
+  }
 
-// getColorboxConfigDefaults()
+  /**
+   * Recalcule les dimensions si l'écran est redimensionné ou tourné (smartphone).
+   */
+  function bindResponsiveResize() {
+    var resizeTimer;
+
+    $(window).on('resize orientationchange', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if ($('#cboxOverlay').is(':visible') && $.colorbox && typeof $.colorbox.resize === 'function') {
+          var dims = getResponsiveMaxDimensions(
+            window.jQueryColorboxSettingsArray.colorboxImageMaxWidth,
+            window.jQueryColorboxSettingsArray.colorboxImageMaxHeight
+          );
+          $.colorbox.resize({
+            maxWidth: dims.maxWidth,
+            maxHeight: dims.maxHeight
+          });
+        }
+      }, 200);
+    });
+  }
+
+  $(function() {
+    if (typeof window.jQueryColorboxSettingsArray !== 'object') {
+      window.jQueryColorboxSettingsArray = getColorboxConfigDefaults();
+    }
+
+    if (window.jQueryColorboxSettingsArray.autoColorboxJavaScript === 'true') {
+      colorboxAddManualClass();
+    }
+
+    if (window.jQueryColorboxSettingsArray.colorboxAddClassToLinks === 'true') {
+      colorboxAddClassToLinks();
+    }
+
+    colorboxSelector();
+    bindResponsiveResize();
+  });
+})(jQuery);

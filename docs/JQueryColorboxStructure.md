@@ -26,10 +26,10 @@
     📁 js
         📄 jquery-colorbox-admin.js
         📄 jquery-colorbox-admin.min.js
-        📄 jquery-colorbox-wrapper-min.js
+        📄 jquery-colorbox-wrapper.min.js
         📄 jquery-colorbox-wrapper.js
-        📄 jquery.colorbox-min.js
-        📄 jquery.colorbox.js
+        📄 jquery-colorbox.min.js
+        📄 jquery-colorbox.js
     📁 themes
         📁 theme1
             📄 colorbox.css

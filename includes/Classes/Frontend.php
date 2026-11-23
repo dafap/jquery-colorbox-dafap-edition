@@ -152,7 +152,7 @@ class Frontend
     private function addColorboxWrapperJS(): void
     {
 
-        $path = $this->isTrue('debugMode') ? 'assets/js/jquery-colorbox-wrapper.js' : 'assets/js/jquery-colorbox-wrapper-min.js';
+        $path = $this->isTrue('debugMode') ? 'assets/js/jquery-colorbox-wrapper.js' : 'assets/js/jquery-colorbox-wrapper.min.js';
 
         wp_enqueue_script(
             'colorbox-wrapper',
@@ -229,7 +229,7 @@ class Frontend
      */
     private function addColorboxJS(): void
     {
-        $path = $this->isTrue('debugMode') ? 'assets/js/jquery.colorbox.js' : 'assets/js/jquery.colorbox-min.js';
+        $path = $this->isTrue('debugMode') ? 'assets/js/jquery-colorbox.js' : 'assets/js/jquery-colorbox.min.js';
 
         wp_enqueue_script(
             'colorbox',
