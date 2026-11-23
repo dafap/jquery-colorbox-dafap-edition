@@ -4,7 +4,7 @@
  * Description: Refonte du plugin jQuery Colorbox pour WordPress, optimisé pour PHP 8.4+, avec une architecture moderne et une compatibilité renforcée.
  * Plugin URI: https://github.com/dafap/jquery-colorbox-dafap-edition
  * Update URI: https://github.com/dafap/jquery-colorbox-dafap-edition
- * Version: 1.1.0
+ * Version: 1.1.1
  * Tested up to: 7.1
  * Author: Alain Pomirol (Dafap), basé sur le travail original d'Arne Franken
  * Author URI: https://github.com/dafap
