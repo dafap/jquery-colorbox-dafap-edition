@@ -143,49 +143,46 @@
       border-radius: 10px;
       box-shadow: 1px 1px 3px #888;
     }
-    #cboxPrevious {
-      opacity: 0.5;
+
+    /* Boutons icônes sur sprite unique controls.png */
+    #cboxPrevious, #cboxNext, #cboxClose {
       position: absolute;
-      top: 36%;
-      left: 10px;
-      margin-top: -32px;
-      background: url(images/prev.png) no-repeat;
-      width: 64px;
-      height: 32px;
+      opacity: 0.5;
       text-indent: -9999px;
+      background: url(images/controls.png) no-repeat;
       transition: opacity 0.2s ease;
+    }
+    #cboxPrevious:hover, #cboxNext:hover, #cboxClose:hover {
+      opacity: 1;
+    }
+    #cboxPrevious, #cboxNext {
+      top: 36%;
+      margin-top: -12px;
+      width: 25px;
+      height: 25px;
+    }
+    #cboxPrevious {
+      left: 10px;
+      background-position: -75px 0;
     }
     #cboxPrevious:hover {
-      opacity: 1;
-      background-position: bottom left;
+      background-position: -75px -25px;
     }
     #cboxNext {
-      opacity: 0.5;
-      position: absolute;
-      top: 36%;
       right: 10px;
-      margin-top: -32px;
-      background: url(images/next.png) top right no-repeat;
-      width: 64px;
-      height: 32px;
-      text-indent: -9999px;
-      transition: opacity 0.2s ease;
+      background-position: -50px 0;
     }
     #cboxNext:hover {
-      opacity: 1;
+      background-position: -50px -25px;
     }
     #cboxClose {
-      opacity: 0.5;
-      position: absolute;
       bottom: 10px;
       right: 10px;
       display: block;
-      background: url(images/close.png) no-repeat;
-      width: 22px;
-      height: 22px;
-      text-indent: -9999px;
-      transition: opacity 0.2s ease;
+      width: 25px;
+      height: 25px;
+      background-position: -25px 0;
     }
     #cboxClose:hover {
-      opacity: 1;
+      background-position: -25px -25px;
     }

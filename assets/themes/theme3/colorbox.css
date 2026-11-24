@@ -119,41 +119,40 @@
       right: 90px;
       color: #fff;
     }
-    #cboxPrevious {
+
+    /* Boutons de navigation sur sprite controls.png */
+    #cboxPrevious, #cboxNext, #cboxClose {
       position: absolute;
+      background: url(images/controls.png) no-repeat;
+      text-indent: -9999px;
+    }
+    #cboxPrevious, #cboxNext {
       top: 50%;
-      left: 5px;
       margin-top: -32px;
-      background: url(images/controls.png) no-repeat top left;
       width: 28px;
       height: 65px;
-      text-indent: -9999px;
+    }
+    #cboxPrevious {
+      left: 5px;
+      background-position: top left;
     }
     #cboxPrevious:hover {
       background-position: bottom left;
     }
     #cboxNext {
-      position: absolute;
-      top: 50%;
       right: 5px;
-      margin-top: -32px;
-      background: url(images/controls.png) no-repeat top right;
-      width: 28px;
-      height: 65px;
-      text-indent: -9999px;
+      background-position: top right;
     }
     #cboxNext:hover {
       background-position: bottom right;
     }
     #cboxClose {
-      position: absolute;
       top: 5px;
       right: 5px;
       display: block;
-      background: url(images/controls.png) no-repeat top center;
       width: 38px;
       height: 19px;
-      text-indent: -9999px;
+      background-position: top center;
     }
     #cboxClose:hover {
       background-position: bottom center;

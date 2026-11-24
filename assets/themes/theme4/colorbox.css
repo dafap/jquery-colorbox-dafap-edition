@@ -69,42 +69,52 @@
   outline: 0;
   font: 13px/1.4 Tahoma, Arial, sans-serif;
 }
-  #cboxTopLeft {
+
+  /* Bordures haut, bas et coins sur images/border1.png */
+  #cboxTopLeft, #cboxTopCenter, #cboxTopRight,
+  #cboxBottomLeft, #cboxBottomCenter, #cboxBottomRight {
+    background-image: url(images/border1.png);
+  }
+  #cboxTopLeft, #cboxTopRight, #cboxBottomLeft, #cboxBottomRight {
     width: 25px;
     height: 25px;
-    background: url(images/border1.png) no-repeat 0 0;
+    background-repeat: no-repeat;
+  }
+  #cboxTopCenter, #cboxBottomCenter {
+    height: 25px;
+    background-repeat: repeat-x;
+  }
+  #cboxTopLeft {
+    background-position: 0 0;
   }
   #cboxTopCenter {
-    height: 25px;
-    background: url(images/border1.png) repeat-x 0 -50px;
+    background-position: 0 -50px;
   }
   #cboxTopRight {
-    width: 25px;
-    height: 25px;
-    background: url(images/border1.png) no-repeat -25px 0;
+    background-position: -25px 0;
   }
   #cboxBottomLeft {
-    width: 25px;
-    height: 25px;
-    background: url(images/border1.png) no-repeat 0 -25px;
+    background-position: 0 -25px;
   }
   #cboxBottomCenter {
-    height: 25px;
-    background: url(images/border1.png) repeat-x 0 -75px;
+    background-position: 0 -75px;
   }
   #cboxBottomRight {
+    background-position: -25px -25px;
+  }
+
+  /* Bordures latérales sur images/border2.png */
+  #cboxMiddleLeft, #cboxMiddleRight {
     width: 25px;
-    height: 25px;
-    background: url(images/border1.png) no-repeat -25px -25px;
+    background: url(images/border2.png) repeat-y;
   }
   #cboxMiddleLeft {
-    width: 25px;
-    background: url(images/border2.png) repeat-y 0 0;
+    background-position: 0 0;
   }
   #cboxMiddleRight {
-    width: 25px;
-    background: url(images/border2.png) repeat-y -25px 0;
+    background-position: -25px 0;
   }
+
   #cboxContent {
     background: #fff;
     overflow: hidden;
@@ -150,28 +160,22 @@
       outline-offset: 2px;
     }
 
-    #cboxSlideshow {
+    /* Boutons texte */
+    #cboxPrevious, #cboxNext, #cboxSlideshow, #cboxClose {
       position: absolute;
       bottom: 0;
-      right: 42px;
       color: #444;
     }
     #cboxPrevious {
-      position: absolute;
-      bottom: 0;
       left: 0;
-      color: #444;
     }
     #cboxNext {
-      position: absolute;
-      bottom: 0;
       left: 63px;
-      color: #444;
+    }
+    #cboxSlideshow {
+      right: 42px;
     }
     #cboxClose {
-      position: absolute;
-      bottom: 0;
       right: 0;
       display: block;
-      color: #444;
     }

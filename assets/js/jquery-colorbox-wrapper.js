@@ -323,6 +323,31 @@
   }
 
   /**
+   * Met à jour maxWidth et maxHeight dans les données Colorbox des éléments déjà initialisés
+   * afin que les diapositives suivantes du diaporama utilisent les dimensions de la nouvelle orientation.
+   */
+  function updateColorboxMaxDimensions(dims) {
+    if (!dims) {
+      return;
+    }
+
+    $('.cboxElement').each(function(_, el) {
+      var $el = $(el);
+      var data = $el.data('colorbox');
+
+      if (data && typeof data === 'object') {
+        if (data.maxWidth !== false && data.maxWidth !== undefined) {
+          data.maxWidth = dims.maxWidth;
+        }
+        if (data.maxHeight !== false && data.maxHeight !== undefined) {
+          data.maxHeight = dims.maxHeight;
+        }
+        $el.data('colorbox', data);
+      }
+    });
+  }
+
+  /**
    * Recalcule les dimensions si l'écran est redimensionné ou tourné (smartphone).
    */
   function bindResponsiveResize() {
@@ -331,11 +356,16 @@
     $(window).on('resize orientationchange', function() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function() {
+        var dims = getResponsiveMaxDimensions(
+          window.jQueryColorboxSettingsArray.colorboxImageMaxWidth,
+          window.jQueryColorboxSettingsArray.colorboxImageMaxHeight
+        );
+
+        // Met à jour les options stockées pour toutes les slides du groupe
+        updateColorboxMaxDimensions(dims);
+
+        // Redimensionne immédiatement la fenêtre active si elle est ouverte
         if ($('#cboxOverlay').is(':visible') && $.colorbox && typeof $.colorbox.resize === 'function') {
-          var dims = getResponsiveMaxDimensions(
-            window.jQueryColorboxSettingsArray.colorboxImageMaxWidth,
-            window.jQueryColorboxSettingsArray.colorboxImageMaxHeight
-          );
           $.colorbox.resize({
             maxWidth: dims.maxWidth,
             maxHeight: dims.maxHeight

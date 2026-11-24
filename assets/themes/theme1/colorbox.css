@@ -69,42 +69,50 @@
   outline: 0;
   font: 13px/1.4 Tahoma, Arial, sans-serif;
 }
-  #cboxTopLeft {
+
+  /* Image sprite unique pour les coins, bordures latérales et boutons icônes */
+  #cboxTopLeft, #cboxTopRight, #cboxBottomLeft, #cboxBottomRight,
+  #cboxMiddleLeft, #cboxMiddleRight,
+  #cboxPrevious, #cboxNext, #cboxClose {
+    background-image: url(images/controls.png);
+  }
+
+  /* Coins et bordures du cadre */
+  #cboxTopLeft, #cboxTopRight, #cboxBottomLeft, #cboxBottomRight {
     width: 21px;
     height: 21px;
-    background: url(images/controls.png) no-repeat -101px 0;
+    background-repeat: no-repeat;
+  }
+  #cboxTopLeft {
+    background-position: -101px 0;
   }
   #cboxTopRight {
-    width: 21px;
-    height: 21px;
-    background: url(images/controls.png) no-repeat -130px 0;
+    background-position: -130px 0;
   }
   #cboxBottomLeft {
-    width: 21px;
-    height: 21px;
-    background: url(images/controls.png) no-repeat -101px -29px;
+    background-position: -101px -29px;
   }
   #cboxBottomRight {
+    background-position: -130px -29px;
+  }
+  #cboxMiddleLeft, #cboxMiddleRight {
     width: 21px;
-    height: 21px;
-    background: url(images/controls.png) no-repeat -130px -29px;
+    background-repeat: repeat-y;
   }
   #cboxMiddleLeft {
-    width: 21px;
-    background: url(images/controls.png) left top repeat-y;
+    background-position: left top;
   }
   #cboxMiddleRight {
-    width: 21px;
-    background: url(images/controls.png) right top repeat-y;
+    background-position: right top;
   }
-  #cboxTopCenter {
+  #cboxTopCenter, #cboxBottomCenter {
     height: 21px;
     background: url(images/border.png) 0 0 repeat-x;
   }
   #cboxBottomCenter {
-    height: 21px;
-    background: url(images/border.png) 0 -29px repeat-x;
+    background-position: 0 -29px;
   }
+
   #cboxContent {
     background: #fff;
     overflow: hidden;
@@ -153,44 +161,41 @@
       outline-offset: 2px;
     }
 
+    /* Bouton texte du diaporama */
     #cboxSlideshow {
       position: absolute;
       bottom: 4px;
       right: 30px;
       color: #0092ef;
     }
-    #cboxPrevious {
+
+    /* Boutons de navigation sur sprite controls.png */
+    #cboxPrevious, #cboxNext, #cboxClose {
       position: absolute;
       bottom: 0;
-      left: 0;
-      background: url(images/controls.png) no-repeat -75px 0;
       width: 25px;
       height: 25px;
       text-indent: -9999px;
+      background-image: url(images/controls.png);
+      background-repeat: no-repeat;
+    }
+    #cboxPrevious {
+      left: 0;
+      background-position: -75px 0;
     }
     #cboxPrevious:hover {
       background-position: -75px -25px;
     }
     #cboxNext {
-      position: absolute;
-      bottom: 0;
       left: 27px;
-      background: url(images/controls.png) no-repeat -50px 0;
-      width: 25px;
-      height: 25px;
-      text-indent: -9999px;
+      background-position: -50px 0;
     }
     #cboxNext:hover {
       background-position: -50px -25px;
     }
     #cboxClose {
-      position: absolute;
-      bottom: 0;
       right: 0;
-      background: url(images/controls.png) no-repeat -25px 0;
-      width: 25px;
-      height: 25px;
-      text-indent: -9999px;
+      background-position: -25px 0;
     }
     #cboxClose:hover {
       background-position: -25px -25px;
